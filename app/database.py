@@ -2,11 +2,14 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import DeclarativeBase
 from app.config import settings
 
-# 创建异步引擎
+# 创建异步引擎 (PostgreSQL 连接池配置)
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
+    pool_size=5,
+    max_overflow=10,
+    pool_pre_ping=True,
 )
 
 # 创建异步会话工厂
