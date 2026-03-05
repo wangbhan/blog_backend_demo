@@ -76,6 +76,15 @@ async def health_check():
     return {"status": "healthy"}
 
 
+@app.get("/debug/cors")
+async def debug_cors():
+    """调试 CORS 配置"""
+    return {
+        "cors_origins_env": settings.CORS_ORIGINS,
+        "cors_origins_list": settings.cors_origins_list
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
