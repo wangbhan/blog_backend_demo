@@ -35,7 +35,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(user)
 
     # 生成token
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     return Token(
         access_token=access_token,
@@ -61,7 +61,7 @@ async def login(user_data: UserLogin, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="用户已被禁用")
 
     # 生成token
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     return Token(
         access_token=access_token,

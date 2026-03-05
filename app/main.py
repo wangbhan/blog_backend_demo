@@ -6,15 +6,21 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import init_db
 from app.api import api_router
+from app.utils.logger import setup_logger, logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
+    # 初始化日志系统
+    setup_logger()
+    logger.info(f"启动 {settings.APP_NAME}")
     # 启动时初始化数据库
     await init_db()
+    logger.info("数据库初始化完成")
     yield
     # 关闭时清理资源
+    logger.info("应用关闭")
 
 
 # 创建FastAPI应用

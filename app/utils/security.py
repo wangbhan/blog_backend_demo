@@ -3,6 +3,7 @@ from typing import Optional
 
 import bcrypt
 from jose import jwt, JWTError
+from loguru import logger
 
 from app.config import settings
 
@@ -38,6 +39,8 @@ def decode_token(token: str) -> Optional[dict]:
     """解码JWT令牌"""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        logger.debug(f"Token解码成功 | user_id: {payload.get('sub')}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        logger.warning(f"Token解码失败 | 错误: {e} | SECRET_KEY前10字符: {settings.SECRET_KEY[:10]}...")
         return None

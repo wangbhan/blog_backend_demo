@@ -3,6 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from loguru import logger
 
 from app.database import get_db
 from app.models.user import User
@@ -17,6 +18,8 @@ async def get_current_user(
     db: AsyncSession = Depends(get_db)
 ) -> User:
     """获取当前登录用户"""
+    logger.debug("开始验证用户凭据")
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="无法验证凭据",
@@ -24,24 +27,39 @@ async def get_current_user(
     )
 
     if credentials is None:
+        logger.warning("认证失败: 未提供 Authorization header")
         raise credentials_exception
 
     token = credentials.credentials
+    logger.debug(f"收到Token | 长度: {len(token)} | 前20字符: {token[:20]}...")
+
     payload = decode_token(token)
 
     if payload is None:
+        logger.warning("认证失败: Token解码返回None")
         raise credentials_exception
 
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
+        logger.warning("认证失败: Token中无sub字段")
         raise credentials_exception
+
+    try:
+        user_id: int = int(user_id_str)
+    except (ValueError, TypeError):
+        logger.warning(f"认证失败: sub字段不是有效数字 | sub: {user_id_str}")
+        raise credentials_exception
+
+    logger.debug(f"Token解析成功 | user_id: {user_id}")
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
 
     if user is None:
+        logger.warning(f"认证失败: 数据库中未找到用户 | user_id: {user_id}")
         raise credentials_exception
 
+    logger.info(f"用户认证成功 | user_id: {user.id} | email: {user.email}")
     return user
 
 
@@ -68,8 +86,13 @@ async def get_optional_user(
     if payload is None:
         return None
 
-    user_id: int = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
+        return None
+
+    try:
+        user_id: int = int(user_id_str)
+    except (ValueError, TypeError):
         return None
 
     result = await db.execute(select(User).where(User.id == user_id))

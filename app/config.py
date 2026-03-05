@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     APP_NAME: str = "个人博客API"
     DEBUG: bool = True
 
+    # 日志配置
+    LOG_LEVEL: str = "INFO"
+    LOG_FILE: str = "logs/app.log"
+
     # CORS配置
     CORS_ORIGINS: str = "http://localhost:3000"
 
