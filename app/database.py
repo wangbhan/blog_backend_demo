@@ -11,7 +11,7 @@ engine = create_async_engine(
     max_overflow=10,
     pool_pre_ping=True,
     # 禁用 prepared statement cache (Supabase pgbouncer 兼容)
-    connect_args={"prepared_statement_cache_size": 0},
+    connect_args={"statement_cache_size": 0},
 )
 
 # 创建异步会话工厂
