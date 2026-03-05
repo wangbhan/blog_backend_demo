@@ -44,10 +44,17 @@ app.add_middleware(
 
 # 挂载静态文件目录（用于图片上传）
 import os
-upload_dir = "uploads"
-if not os.path.exists(upload_dir):
-    os.makedirs(upload_dir)
-app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
+
+# Vercel 环境使用 /tmp 目录，本地使用 uploads 目录
+upload_dir = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
+
+try:
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir)
+    app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
+except OSError:
+    # Vercel 只读文件系统时跳过静态文件挂载
+    pass
 
 # 注册路由
 app.include_router(api_router, prefix="/api")

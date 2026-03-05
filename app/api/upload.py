@@ -9,8 +9,8 @@ from app.utils.dependencies import get_current_active_user
 
 router = APIRouter()
 
-# 上传目录
-UPLOAD_DIR = "uploads"
+# 上传目录 - Vercel 环境使用 /tmp 目录
+UPLOAD_DIR = "/tmp/uploads" if os.environ.get("VERCEL") else "uploads"
 
 
 def ensure_upload_dir():
