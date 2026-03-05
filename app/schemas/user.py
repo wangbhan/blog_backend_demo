@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -11,7 +11,12 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """用户创建模型"""
-    password: str
+    password: str = Field(
+        ...,
+        min_length=8,
+        max_length=72,
+        description="用户密码，长度 8-72 字符"
+    )
 
 
 class UserLogin(BaseModel):
