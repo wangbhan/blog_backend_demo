@@ -2,6 +2,8 @@
 
 一个基于 FastAPI + Next.js 构建的现代化个人博客系统。
 
+服务已经部署到：https://blog-frontend-demo.vercel.app/
+
 ## 技术栈
 
 ### 后端
